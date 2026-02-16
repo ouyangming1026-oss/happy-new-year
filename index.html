@@ -3,36 +3,60 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>给明珠｜新年烟花祝福</title>
+  <title>给明珠｜新年烟花与星河</title>
   <style>
     :root{
-      --bg1:#030615;
-      --bg2:#0b1240;
+      --bg0:#03040b;
+      --bg1:#070b22;
+      --bg2:#111a4b;
       --bg3:#2a0b3a;
       --gold:#ffd37a;
       --pink:#ff63c6;
       --cyan:#6bf7ff;
+      --mint:#7fffd4;
       --white:#ffffff;
+      --glass: rgba(10, 14, 35, .42);
+      --stroke: rgba(255,255,255,.16);
     }
     *{box-sizing:border-box}
     html,body{height:100%; margin:0; overflow:hidden; background:#000;}
     body{
       font-family: -apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",Segoe UI,Roboto,Helvetica,Arial,sans-serif;
       color:#fff;
+      user-select:none;
     }
 
-    /* 全屏背景层 */
+    /* 背景：星云 */
     .bg{
       position:fixed; inset:0; z-index:0;
       background:
-        radial-gradient(1200px 900px at 20% 20%, rgba(255,99,198,.18) 0%, transparent 58%),
-        radial-gradient(1100px 900px at 80% 30%, rgba(107,247,255,.13) 0%, transparent 60%),
-        radial-gradient(900px 700px at 60% 90%, rgba(255,211,122,.10) 0%, transparent 60%),
-        linear-gradient(160deg, var(--bg1), var(--bg2) 55%, var(--bg3));
-      filter:saturate(1.1);
+        radial-gradient(1200px 900px at 20% 18%, rgba(255,99,198,.18) 0%, transparent 58%),
+        radial-gradient(1100px 900px at 80% 28%, rgba(107,247,255,.13) 0%, transparent 60%),
+        radial-gradient(900px 700px at 55% 92%, rgba(255,211,122,.10) 0%, transparent 60%),
+        linear-gradient(160deg, var(--bg0), var(--bg1) 35%, var(--bg2) 62%, var(--bg3));
+      filter:saturate(1.12);
     }
 
-    /* 星星点点 */
+    /* 电影颗粒 */
+    .grain{
+      position:fixed; inset:-30%;
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='.35'/%3E%3C/svg%3E");
+      mix-blend-mode: overlay;
+      opacity:.16;
+      z-index:2;
+      pointer-events:none;
+      animation: grainMove 7s steps(10) infinite;
+    }
+    @keyframes grainMove{
+      0%{transform:translate(0,0)}
+      20%{transform:translate(-4%,2%)}
+      40%{transform:translate(3%,-3%)}
+      60%{transform:translate(-2%,-1%)}
+      80%{transform:translate(2%,4%)}
+      100%{transform:translate(0,0)}
+    }
+
+    /* 星点层 */
     .stars{
       position:fixed; inset:0; z-index:1; pointer-events:none;
       background-image:
@@ -47,194 +71,590 @@
       opacity:.75;
       animation: twinkle 4.2s ease-in-out infinite;
     }
-    @keyframes twinkle{
-      0%,100%{opacity:.55}
-      50%{opacity:.9}
-    }
+    @keyframes twinkle{ 0%,100%{opacity:.55} 50%{opacity:.95} }
 
-    /* 烟花画布全屏 */
+    /* 视频层：可选“幽幽动态背景”，默认隐藏，按钮打开时显示 */
+    .bgVideo{
+      position:fixed; inset:0;
+      width:100vw; height:100vh; object-fit:cover;
+      z-index:0;
+      opacity:.0;
+      transform: scale(1.02);
+      filter: blur(3px) saturate(1.05) contrast(1.05);
+      mix-blend-mode: screen;
+      pointer-events:none;
+      transition: opacity .7s ease;
+    }
+    .bgVideo.on{ opacity:.25; }
+
+    /* Canvas：流星与烟花（两层） */
     canvas{
       position:fixed; inset:0;
       width:100vw; height:100vh;
-      z-index:2;
+      z-index:3;
     }
+    #meteors{ z-index:2; }
+    #fireworks{ z-index:3; }
 
-    /* 中央祝福字 */
+    /* 中央文案层 */
     .center{
       position:fixed; inset:0;
       display:flex; align-items:center; justify-content:center;
-      z-index:3;
+      z-index:4;
       pointer-events:none;
-      padding: 18px;
+      padding: 22px;
       text-align:center;
     }
+    .stack{ max-width:min(920px, 92vw); }
+
+    .badgeRow{
+      display:flex; gap:10px; justify-content:center; flex-wrap:wrap;
+      margin-bottom: 14px;
+    }
+    .badge{
+      pointer-events:none;
+      font-size: 12px;
+      padding: 7px 12px;
+      border-radius: 999px;
+      background: rgba(0,0,0,.18);
+      border: 1px solid rgba(255,255,255,.14);
+      backdrop-filter: blur(12px);
+      opacity:.88;
+    }
+
     .title{
-      max-width:min(820px, 92vw);
-      line-height:1.1;
-      font-weight:900;
-      letter-spacing: 2px;
-      font-size: clamp(34px, 6vw, 72px);
       margin:0;
+      font-weight: 950;
+      letter-spacing: 2px;
+      font-size: clamp(36px, 6vw, 78px);
+      line-height:1.05;
       background: linear-gradient(90deg, #fff, var(--gold), var(--pink));
       -webkit-background-clip:text;
       background-clip:text;
       color: transparent;
       text-shadow:
-        0 0 26px rgba(255,211,122,.14),
-        0 0 60px rgba(255,99,198,.10);
+        0 0 30px rgba(255,211,122,.14),
+        0 0 80px rgba(255,99,198,.10);
+      position:relative;
       animation: breathe 2.8s ease-in-out infinite;
     }
     @keyframes breathe{
-      0%,100%{ transform: scale(1); filter: drop-shadow(0 0 0 rgba(255,211,122,.0)); }
-      50%{ transform: scale(1.02); filter: drop-shadow(0 0 18px rgba(255,211,122,.18)); }
-    }
-    .subtitle{
-      margin: 14px 0 0;
-      font-size: clamp(14px, 2.2vw, 18px);
-      opacity:.92;
-      line-height:1.7;
-      text-shadow: 0 12px 40px rgba(0,0,0,.35);
+      0%,100%{ transform: scale(1); }
+      50%{ transform: scale(1.02); }
     }
 
-    /* 底部操作条（可点） */
+    /* “描边霓虹”让文字不单调 */
+    .title::after{
+      content: attr(data-glow);
+      position:absolute; left:0; right:0; top:0;
+      color: transparent;
+      -webkit-text-stroke: 2px rgba(255,255,255,.22);
+      filter: drop-shadow(0 0 18px rgba(107,247,255,.14));
+      opacity:.75;
+      transform: translateY(2px);
+      z-index:-1;
+    }
+
+    .poem{
+      margin: 16px auto 0;
+      font-size: clamp(14px, 2.2vw, 18px);
+      line-height:1.85;
+      opacity:.92;
+      text-shadow: 0 12px 45px rgba(0,0,0,.35);
+    }
+    .poem .line{
+      display:block;
+      opacity:0;
+      transform: translateY(10px);
+      animation: riseIn .9s ease forwards;
+    }
+    .poem .line:nth-child(1){ animation-delay: .25s; }
+    .poem .line:nth-child(2){ animation-delay: .55s; }
+    .poem .line:nth-child(3){ animation-delay: .85s; }
+    .poem .line:nth-child(4){ animation-delay: 1.15s; }
+    @keyframes riseIn{
+      to{ opacity:1; transform: translateY(0); }
+    }
+
+    /* 照片卡片：像拍立得一样漂浮（可点） */
+    .photos{
+      position:fixed;
+      left: 18px;
+      top: 18px;
+      z-index:5;
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+      pointer-events:auto;
+    }
+    .photoCard{
+      width: 118px;
+      border-radius: 16px;
+      padding: 10px;
+      background: rgba(10,14,35,.38);
+      border: 1px solid rgba(255,255,255,.14);
+      backdrop-filter: blur(12px);
+      box-shadow: 0 18px 70px rgba(0,0,0,.35);
+      cursor:pointer;
+      transform: rotate(-2deg);
+      transition: transform .18s ease, border-color .18s ease;
+    }
+    .photoCard:nth-child(2){ transform: rotate(2deg); }
+    .photoCard:active{ transform: scale(.98); }
+    .photo{
+      width:100%;
+      height: 110px;
+      border-radius: 12px;
+      object-fit: cover;
+      display:block;
+      filter: contrast(1.05) saturate(1.05);
+    }
+    .cap{
+      margin-top: 8px;
+      font-size: 11px;
+      opacity:.82;
+      line-height:1.35;
+    }
+
+    /* 底部 HUD */
     .hud{
       position:fixed; left:0; right:0; bottom:0;
-      z-index:4;
+      z-index:6;
       padding: 14px 14px calc(14px + env(safe-area-inset-bottom));
       display:flex; justify-content:center;
       pointer-events:none;
     }
     .bar{
-      width:min(720px, 96vw);
+      width:min(860px, 96vw);
       display:flex;
       gap:10px;
       padding: 10px;
       border-radius: 18px;
-      background: rgba(10,14,35,.42);
-      border: 1px solid rgba(255,255,255,.16);
+      background: var(--glass);
+      border: 1px solid var(--stroke);
       backdrop-filter: blur(14px);
-      box-shadow: 0 20px 80px rgba(0,0,0,.35);
+      box-shadow: 0 22px 90px rgba(0,0,0,.35);
       pointer-events:auto;
+      flex-wrap:wrap;
     }
     button{
-      flex:1;
       border:0;
       border-radius: 14px;
       padding: 12px 12px;
       font-size: 14px;
-      font-weight:800;
+      font-weight:900;
       cursor:pointer;
       color:#061027;
       transition: transform .08s ease;
+      flex: 1 1 170px;
     }
     button:active{ transform: scale(.98); }
-    .btn1{
+    .btnGold{
       background: linear-gradient(90deg, var(--gold), #fff);
       box-shadow: 0 10px 30px rgba(255,211,122,.12);
     }
-    .btn2{
+    .btnCyan{
       background: linear-gradient(90deg, var(--cyan), #fff);
       box-shadow: 0 10px 30px rgba(107,247,255,.10);
     }
+    .btnPink{
+      background: linear-gradient(90deg, var(--pink), #fff);
+      box-shadow: 0 10px 30px rgba(255,99,198,.10);
+    }
+
     .tip{
       position:fixed;
-      z-index:4;
+      z-index:6;
       top: 14px;
       left: 50%;
       transform: translateX(-50%);
       padding: 8px 12px;
       border-radius: 999px;
-      border: 1px solid rgba(255,255,255,.18);
-      background: rgba(0,0,0,.22);
+      border: 1px solid rgba(255,255,255,.16);
+      background: rgba(0,0,0,.20);
       backdrop-filter: blur(10px);
       font-size: 12px;
-      opacity:.85;
+      opacity:.86;
       pointer-events:none;
+      transition: opacity .8s ease;
+    }
+
+    /* 视频 Modal（融合） */
+    .modal{
+      position:fixed; inset:0; z-index:9;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding: 18px;
+      background: rgba(0,0,0,.55);
+      backdrop-filter: blur(14px);
+    }
+    .modal.on{ display:flex; }
+    .modalBox{
+      width:min(980px, 96vw);
+      border-radius: 20px;
+      border:1px solid rgba(255,255,255,.16);
+      background: rgba(10,14,35,.40);
+      box-shadow: 0 24px 120px rgba(0,0,0,.55);
+      overflow:hidden;
+      position:relative;
+    }
+    .modalTop{
+      display:flex; justify-content:space-between; align-items:center;
+      padding: 12px 14px;
+      border-bottom:1px solid rgba(255,255,255,.10);
+      font-size: 13px;
+      opacity:.9;
+    }
+    .x{
+      border:0; cursor:pointer; font-weight:900;
+      background: rgba(255,255,255,.12);
+      color:#fff;
+      padding: 8px 12px;
+      border-radius: 999px;
+    }
+    .modalVideo{
+      width:100%;
+      max-height: 72vh;
+      display:block;
+      object-fit:cover;
+      background:#000;
+    }
+    .modalNote{
+      padding: 12px 14px 14px;
+      font-size: 13px;
+      opacity:.86;
+      line-height:1.7;
+    }
+
+    /* 小屏优化：照片卡不要挡太多 */
+    @media (max-width: 420px){
+      .photos{ left: 10px; top: 10px; }
+      .photoCard{ width: 104px; }
+      .photo{ height: 98px; }
     }
   </style>
 </head>
 <body>
   <div class="bg"></div>
+  <video id="bgVideo" class="bgVideo" muted playsinline preload="metadata"></video>
   <div class="stars"></div>
-  <div class="tip" id="tip">点屏幕任意位置放烟花｜长按更密集</div>
+  <canvas id="meteors"></canvas>
+  <canvas id="fireworks"></canvas>
+  <div class="grain"></div>
 
-  <canvas id="c"></canvas>
+  <div class="tip" id="tip">点屏幕放烟花｜长按更密集｜点左上照片会触发“照片烟花”</div>
 
+  <!-- 左上角照片卡（融合入口之一） -->
+  <div class="photos">
+    <div class="photoCard" id="p1">
+      <img class="photo" id="img1" alt="明珠照片1">
+      <div class="cap">把温柔藏进光里<br/>（点我）</div>
+    </div>
+    <div class="photoCard" id="p2">
+      <img class="photo" id="img2" alt="明珠照片2">
+      <div class="cap">把幸福端在手心<br/>（点我）</div>
+    </div>
+  </div>
+
+  <!-- 中央文案：走心 + 分行入场 -->
   <div class="center">
-    <div>
-      <h1 class="title" id="title">明珠，新年快乐</h1>
-      <div class="subtitle" id="subtitle">
-        愿你这一年：被偏爱、被理解、被温柔坚定地选择。<br/>
-        也愿你永远有光，永远有路，永远有人真心在意你。
+    <div class="stack">
+      <div class="badgeRow">
+        <div class="badge" id="yearBadge">✨ 新年 · 星河为你亮</div>
+        <div class="badge">专属对象：<b id="nameBadge">明珠</b></div>
+        <div class="badge">提示：开启音效更沉浸</div>
+      </div>
+
+      <h1 class="title" id="title" data-glow="明珠，新年快乐">明珠，新年快乐</h1>
+
+      <div class="poem" id="poem">
+        <span class="line">愿你被世界温柔以待，也被自己坚定偏爱。</span>
+        <span class="line">愿你在每个普通的日子里，都能收获微小而确凿的幸福。</span>
+        <span class="line">愿你不必逞强也能被理解，不必讨好也能被珍惜。</span>
+        <span class="line">这一年，我想把“喜欢你”做得更具体一点。</span>
       </div>
     </div>
   </div>
 
+  <!-- 底部操作 -->
   <div class="hud">
     <div class="bar">
-      <button class="btn1" id="mega">🎆 超级连发</button>
-      <button class="btn2" id="wish">✨ 换一句走心祝福</button>
+      <button class="btnGold" id="mega">🎆 超级连发</button>
+      <button class="btnCyan" id="wish">✨ 换一句走心祝福</button>
+      <button class="btnPink" id="sound">🔊 开启音效</button>
+      <button class="btnCyan" id="videoBtn">🎬 打开视频回忆</button>
+    </div>
+  </div>
+
+  <!-- 视频弹窗 -->
+  <div class="modal" id="modal">
+    <div class="modalBox">
+      <div class="modalTop">
+        <div>🎬 给明珠的片段｜点右侧关闭</div>
+        <button class="x" id="close">关闭</button>
+      </div>
+      <video id="mv" class="modalVideo" controls playsinline preload="metadata"></video>
+      <div class="modalNote" id="modalNote">
+        有些话我不想只写在屏幕上，更想在真实里慢慢对你说。<br/>
+        看完可以再点一次「超级连发」，把这一刻点亮到极致。
+      </div>
     </div>
   </div>
 
 <script>
-/**
- * 全屏烟花引擎（Canvas 2D）
- * - 自动发射 + 触摸/点击发射
- * - 移动端粒子自适应
- */
+/* ==========================
+   0) 你只需要改这里的文字
+========================== */
+const HER_NAME = "明珠";           // ✅ 祝福对象
+const FROM_NAME = "";             // 例如："—— MING"（可留空）
+const ASSETS = {
+  img1: "assets/mingzhu1.jpg",
+  img2: "assets/mingzhu2.jpg",
+  video: "assets/mingzhu.mp4",
+};
 
-const herName = "明珠"; // ✅ 祝福对象名字（你要的）
-const titleEl = document.getElementById("title");
-titleEl.textContent = `${herName}，新年快乐`;
-
-const wishes = [
-  "愿你这一年：被偏爱、被理解、被温柔坚定地选择。",
-  "愿你永远不缺重新开始的勇气，也不缺被爱包围的底气。",
-  "愿你的心永远柔软而有力量，生活永远明亮又可爱。",
-  "愿你把自己照顾得很好：开心、健康、自由、闪闪发光。",
-  "愿你所有的认真都被看见，所有的期待都有回响。",
-  "愿你站在热爱里，闪耀在喜欢的世界里。"
+/* 走心文案池（更有层次，不单调） */
+const WISHES = [
+  ["愿你被世界温柔以待，也被自己坚定偏爱。","愿你在普通日子里也能收获微小却确凿的幸福。","愿你不必逞强也能被理解，不必讨好也能被珍惜。","这一年，我想把“喜欢你”做得更具体一点。"],
+  ["愿你总能在低谷里遇见光，在忙碌里留住心跳。","愿你把生活过成你喜欢的样子，不慌不忙，却坚定向前。","愿你被偏爱时不惶恐，被独处时不孤单。","如果可以，我想做你心里那盏不熄的灯。"],
+  ["愿你笑起来的时候，世界也跟着变柔软。","愿你所有的认真都被看见，所有的期待都有回响。","愿你被坚定选择，被温柔拥抱，被幸运偏袒。","新的一年，我想更认真地对你好。"],
+  ["愿你拥有足够的自由，也拥有被守护的安心。","愿你在任何关系里都不委屈自己，在任何选择里都不辜负真心。","愿你每一次向前，都恰好遇到更好的自己。","我想陪你把平凡的日子，过成浪漫。"],
 ];
 
-const subtitleEl = document.getElementById("subtitle");
-document.getElementById("wish").addEventListener("click", () => {
-  const w = wishes[Math.floor(Math.random()*wishes.length)];
-  subtitleEl.innerHTML = `${w}<br/>—— 送给你，${herName}`;
-  floatText(w, innerWidth*0.5, innerHeight*0.45);
-  megaBurst(10);
+const FLOAT_QUOTES = [
+  "明珠，新年快乐",
+  "愿你闪闪发光",
+  "愿你被温柔坚定选择",
+  "愿你心想事成",
+  "愿你每天都快乐一点",
+];
+
+/* ==========================
+   1) DOM 初始化
+========================== */
+const $ = s => document.querySelector(s);
+$("#nameBadge").textContent = HER_NAME;
+$("#title").textContent = `${HER_NAME}，新年快乐`;
+$("#title").setAttribute("data-glow", `${HER_NAME}，新年快乐`);
+$("#yearBadge").textContent = `✨ ${new Date().getFullYear()} · 星河为你亮`;
+
+const img1 = $("#img1"), img2 = $("#img2");
+img1.src = ASSETS.img1; img2.src = ASSETS.img2;
+
+const bgVideo = $("#bgVideo");
+bgVideo.src = ASSETS.video;  // 背景视频（默认不显示）
+
+const modal = $("#modal");
+const mv = $("#mv");
+mv.src = ASSETS.video;
+
+/* ==========================
+   2) 音效（点击后才可播放）
+   - WebAudio 小铃声 + 烟花“啪”声
+========================== */
+let audioOn = false;
+let ac = null;
+
+function ensureAudio(){
+  if(ac) return;
+  ac = new (window.AudioContext || window.webkitAudioContext)();
+}
+
+function ping(freq=880, dur=0.08, gain=0.08){
+  if(!audioOn) return;
+  ensureAudio();
+  const o = ac.createOscillator();
+  const g = ac.createGain();
+  o.type = "sine";
+  o.frequency.value = freq;
+  g.gain.value = 0.0001;
+  o.connect(g).connect(ac.destination);
+  const t = ac.currentTime;
+  g.gain.exponentialRampToValueAtTime(gain, t + 0.01);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  o.start(t);
+  o.stop(t + dur + 0.02);
+}
+
+function boomSound(){
+  if(!audioOn) return;
+  ensureAudio();
+  // 噪声 + 短包络
+  const bufferSize = 2 * ac.sampleRate;
+  const noiseBuffer = ac.createBuffer(1, bufferSize, ac.sampleRate);
+  const output = noiseBuffer.getChannelData(0);
+  for (let i = 0; i < bufferSize; i++) output[i] = Math.random() * 2 - 1;
+
+  const noise = ac.createBufferSource();
+  noise.buffer = noiseBuffer;
+
+  const filter = ac.createBiquadFilter();
+  filter.type = "bandpass";
+  filter.frequency.value = 180;
+
+  const gainNode = ac.createGain();
+  gainNode.gain.value = 0.0001;
+
+  noise.connect(filter).connect(gainNode).connect(ac.destination);
+
+  const t = ac.currentTime;
+  gainNode.gain.exponentialRampToValueAtTime(0.12, t + 0.01);
+  gainNode.gain.exponentialRampToValueAtTime(0.0001, t + 0.20);
+
+  noise.start(t);
+  noise.stop(t + 0.22);
+}
+
+$("#sound").addEventListener("click", async ()=>{
+  audioOn = !audioOn;
+  if(audioOn){
+    ensureAudio();
+    try{ await ac.resume(); }catch(e){}
+    $("#sound").textContent = "🔊 音效已开启";
+    ping(1046, 0.10, 0.10); setTimeout(()=>ping(1318,0.10,0.09),120);
+  }else{
+    $("#sound").textContent = "🔈 关闭音效";
+  }
 });
 
-const canvas = document.getElementById("c");
-const ctx = canvas.getContext("2d", { alpha: true });
+/* ==========================
+   3) 文案换一套（分行入场更走心）
+========================== */
+function setPoem(lines){
+  const poem = $("#poem");
+  poem.innerHTML = "";
+  lines.forEach((t,i)=>{
+    const s = document.createElement("span");
+    s.className = "line";
+    s.textContent = t + (i===lines.length-1 && FROM_NAME ? ` ${FROM_NAME}` : "");
+    s.style.animationDelay = (0.25 + i*0.28) + "s";
+    poem.appendChild(s);
+  });
+}
+
+$("#wish").addEventListener("click", ()=>{
+  setPoem(WISHES[(Math.random()*WISHES.length)|0]);
+  megaBurst(isMobile ? 16 : 22);
+  floatText(pick(FLOAT_QUOTES), W*0.5, H*0.42);
+  ping(988,0.08,0.08); setTimeout(()=>ping(1175,0.08,0.07),120);
+});
+
+/* ==========================
+   4) 视频融合：弹窗 + 背景幽光
+========================== */
+$("#videoBtn").addEventListener("click", ()=>{
+  modal.classList.add("on");
+  bgVideo.classList.add("on");
+  // iOS/微信：自动播放通常限制，尽量尝试静音播放（允许概率更高）
+  try{ bgVideo.muted = true; bgVideo.play(); }catch(e){}
+  try{ mv.play(); }catch(e){}
+  megaBurst(isMobile ? 12 : 16);
+  floatText("这一段回忆，送给你", W*0.5, H*0.42);
+});
+
+$("#close").addEventListener("click", ()=>{
+  modal.classList.remove("on");
+  bgVideo.classList.remove("on");
+  try{ mv.pause(); }catch(e){}
+});
+
+/* ==========================
+   5) Canvas 尺寸
+========================== */
+const meteors = $("#meteors");
+const fireworks = $("#fireworks");
+const mctx = meteors.getContext("2d", { alpha:true });
+const fctx = fireworks.getContext("2d", { alpha:true });
 
 let W=0,H=0,DPR=1;
 function resize(){
   DPR = Math.min(2, window.devicePixelRatio || 1);
   W = Math.floor(innerWidth);
   H = Math.floor(innerHeight);
-  canvas.width = Math.floor(W * DPR);
-  canvas.height = Math.floor(H * DPR);
-  canvas.style.width = W+"px";
-  canvas.style.height = H+"px";
-  ctx.setTransform(DPR,0,0,DPR,0,0);
+  [meteors, fireworks].forEach(c=>{
+    c.width = Math.floor(W * DPR);
+    c.height = Math.floor(H * DPR);
+    c.style.width = W+"px";
+    c.style.height = H+"px";
+  });
+  mctx.setTransform(DPR,0,0,DPR,0,0);
+  fctx.setTransform(DPR,0,0,DPR,0,0);
 }
 window.addEventListener("resize", resize);
 resize();
 
-// 性能：移动端/小屏降低粒子
 const isMobile = matchMedia("(pointer:coarse)").matches;
-let PARTICLES_PER_BURST = isMobile ? 70 : 110;
-let AUTO_RATE = isMobile ? 520 : 420; // 自动发射间隔
 
-// 颜色盘
+/* ==========================
+   6) 流星雨（背景层）
+========================== */
+const meteorList = [];
+function spawnMeteor(){
+  // 从上方随机进入，斜向右下
+  const x = rand(-W*0.2, W*0.9);
+  const y = rand(-H*0.2, H*0.35);
+  meteorList.push({
+    x,y,
+    vx: rand(10, 16),
+    vy: rand(6, 10),
+    life: 0,
+    max: rand(24, 44),
+    w: rand(120, 220),
+  });
+}
+let meteorTimer = 0;
+
+function meteorLoop(ts){
+  // 轻微拖影
+  mctx.fillStyle = "rgba(0,0,0,0.18)";
+  mctx.fillRect(0,0,W,H);
+
+  if(ts - meteorTimer > (isMobile ? 520 : 420)){
+    if(Math.random() < 0.65) spawnMeteor();
+    meteorTimer = ts;
+  }
+
+  for(let i=meteorList.length-1;i>=0;i--){
+    const m = meteorList[i];
+    m.life++;
+    m.x += m.vx;
+    m.y += m.vy;
+    const t = 1 - m.life/m.max;
+    const a = t*t;
+
+    // 流星尾巴
+    const gx = m.x - m.vx*2.2;
+    const gy = m.y - m.vy*2.2;
+    const grad = mctx.createLinearGradient(m.x, m.y, gx - m.w, gy - m.w*0.4);
+    grad.addColorStop(0, `rgba(255,255,255,${0.85*a})`);
+    grad.addColorStop(1, `rgba(107,247,255,0)`);
+    mctx.strokeStyle = grad;
+    mctx.lineWidth = 2.2;
+    mctx.beginPath();
+    mctx.moveTo(m.x, m.y);
+    mctx.lineTo(gx - m.w, gy - m.w*0.4);
+    mctx.stroke();
+
+    // 头部亮点
+    mctx.fillStyle = `rgba(255,255,255,${0.75*a})`;
+    mctx.beginPath();
+    mctx.arc(m.x, m.y, 2.2, 0, Math.PI*2);
+    mctx.fill();
+
+    if(m.life >= m.max || m.x>W+300 || m.y>H+300) meteorList.splice(i,1);
+  }
+
+  requestAnimationFrame(meteorLoop);
+}
+requestAnimationFrame(meteorLoop);
+
+/* ==========================
+   7) 烟花引擎（更酷：加法混合 + bloom感）
+   + 融合：爆炸中心随机“照片印记”
+========================== */
 const colors = [
-  [255,211,122], // gold
-  [255,99,198],  // pink
-  [107,247,255], // cyan
-  [255,255,255], // white
-  [160,255,170], // green
-  [200,170,255], // purple
+  [255,211,122],[255,99,198],[107,247,255],[255,255,255],[160,255,170],[200,170,255]
 ];
 
 function rand(a,b){ return a + Math.random()*(b-a); }
@@ -245,85 +665,77 @@ const rockets = [];
 const sparks = [];
 const texts = [];
 
+let PARTICLES = isMobile ? 90 : 140;
+let AUTO_RATE = isMobile ? 520 : 420;
+
 class Rocket{
-  constructor(x,y){
-    this.x=x; this.y=y;
-    this.vx=rand(-1.0, 1.0);
-    this.vy=rand(-13.5, -18.0);
-    this.ax=0; this.ay=0.18;
+  constructor(x){
+    this.x=x;
+    this.y=H+10;
+    this.vx=rand(-1.2,1.2);
+    this.vy=rand(-14.5,-19.5);
+    this.ay=0.18;
     this.life=0;
-    this.targetY = rand(H*0.18, H*0.42);
+    this.targetY = rand(H*0.16, H*0.42);
     this.color = pick(colors);
-    this.trail = [];
+    this.trail=[];
   }
   step(){
     this.life++;
-    this.vx += this.ax;
     this.vy += this.ay;
     this.x += this.vx;
     this.y += this.vy;
 
-    this.trail.push([this.x, this.y]);
-    if(this.trail.length > 10) this.trail.shift();
+    this.trail.push([this.x,this.y]);
+    if(this.trail.length>12) this.trail.shift();
 
-    // 到高度或随机爆炸
-    if(this.y <= this.targetY || this.life > 90){
-      explode(this.x, this.y, this.color);
+    if(this.y <= this.targetY || this.life>95){
+      explode(this.x,this.y,this.color);
       return false;
     }
-    return (this.x>-50 && this.x<W+50 && this.y>-50 && this.y<H+50);
+    return (this.x>-80 && this.x<W+80 && this.y>-80 && this.y<H+80);
   }
   draw(){
-    // 尾迹
     for(let i=0;i<this.trail.length-1;i++){
       const a = i/(this.trail.length-1);
-      const p = this.trail[i];
-      const q = this.trail[i+1];
-      ctx.strokeStyle = `rgba(${this.color[0]},${this.color[1]},${this.color[2]},${0.35*a})`;
-      ctx.lineWidth = 2.0;
-      ctx.beginPath();
-      ctx.moveTo(p[0],p[1]);
-      ctx.lineTo(q[0],q[1]);
-      ctx.stroke();
+      const p=this.trail[i], q=this.trail[i+1];
+      fctx.strokeStyle = `rgba(${this.color[0]},${this.color[1]},${this.color[2]},${0.35*a})`;
+      fctx.lineWidth = 2.2;
+      fctx.beginPath(); fctx.moveTo(p[0],p[1]); fctx.lineTo(q[0],q[1]); fctx.stroke();
     }
-    // 火箭点
-    ctx.fillStyle = `rgba(${this.color[0]},${this.color[1]},${this.color[2]},0.9)`;
-    ctx.beginPath();
-    ctx.arc(this.x, this.y, 2.2, 0, Math.PI*2);
-    ctx.fill();
+    fctx.fillStyle = `rgba(${this.color[0]},${this.color[1]},${this.color[2]},0.95)`;
+    fctx.beginPath(); fctx.arc(this.x,this.y,2.4,0,Math.PI*2); fctx.fill();
   }
 }
 
 class Spark{
   constructor(x,y,color){
     this.x=x; this.y=y;
-    const ang = rand(0, Math.PI*2);
-    const spd = rand(2.2, 7.6);
-    this.vx = Math.cos(ang)*spd;
-    this.vy = Math.sin(ang)*spd;
-    this.ay = 0.06;
-    this.drag = 0.985;
-    this.life = 0;
-    this.maxLife = rand(48, 84);
-    this.color = color;
-    this.size = rand(1.0, 2.6);
-    this.tw = rand(0.6, 1.0); // 闪烁
+    const ang=rand(0,Math.PI*2);
+    const spd=rand(2.2,8.2);
+    this.vx=Math.cos(ang)*spd;
+    this.vy=Math.sin(ang)*spd;
+    this.ay=0.06;
+    this.drag=0.985;
+    this.life=0;
+    this.max=rand(52, 96);
+    this.color=color;
+    this.r=rand(1.0,2.8);
+    this.tw=rand(0.6,1.0);
   }
   step(){
     this.life++;
-    this.vx *= this.drag;
-    this.vy = this.vy*this.drag + this.ay;
-    this.x += this.vx;
-    this.y += this.vy;
-    return this.life < this.maxLife;
+    this.vx*=this.drag;
+    this.vy=this.vy*this.drag + this.ay;
+    this.x+=this.vx;
+    this.y+=this.vy;
+    return this.life < this.max;
   }
   draw(){
-    const t = 1 - this.life/this.maxLife;
-    const a = (t*t) * this.tw;
-    ctx.fillStyle = `rgba(${this.color[0]},${this.color[1]},${this.color[2]},${a})`;
-    ctx.beginPath();
-    ctx.arc(this.x, this.y, this.size, 0, Math.PI*2);
-    ctx.fill();
+    const t=1-this.life/this.max;
+    const a=(t*t)*this.tw;
+    fctx.fillStyle = `rgba(${this.color[0]},${this.color[1]},${this.color[2]},${a})`;
+    fctx.beginPath(); fctx.arc(this.x,this.y,this.r,0,Math.PI*2); fctx.fill();
   }
 }
 
@@ -331,155 +743,215 @@ class FloatingText{
   constructor(text,x,y){
     this.text=text;
     this.x=x; this.y=y;
-    this.vy = rand(-0.6,-1.2);
-    this.life=0; this.maxLife=120;
+    this.vy=rand(-0.7,-1.25);
+    this.life=0; this.max=120;
   }
-  step(){
-    this.life++;
-    this.y += this.vy;
-    return this.life < this.maxLife;
-  }
+  step(){ this.life++; this.y+=this.vy; return this.life<this.max; }
   draw(){
-    const t = 1 - this.life/this.maxLife;
-    const a = t*t;
-    ctx.save();
-    ctx.globalAlpha = 0.9*a;
-    ctx.font = `800 ${clamp(W/26, 16, 26)}px system-ui,-apple-system,PingFang SC,Microsoft YaHei`;
-    ctx.textAlign="center";
-    // 发光描边
-    ctx.strokeStyle = "rgba(255,211,122,0.45)";
-    ctx.lineWidth = 6;
-    ctx.strokeText(this.text, this.x, this.y);
-    ctx.fillStyle = "rgba(255,255,255,0.95)";
-    ctx.fillText(this.text, this.x, this.y);
-    ctx.restore();
+    const t=1-this.life/this.max;
+    const a=t*t;
+    fctx.save();
+    fctx.globalAlpha = 0.9*a;
+    fctx.font = `900 ${clamp(W/26, 16, 28)}px system-ui,-apple-system,PingFang SC,Microsoft YaHei`;
+    fctx.textAlign="center";
+    fctx.lineWidth=7;
+    fctx.strokeStyle="rgba(255,211,122,0.42)";
+    fctx.strokeText(this.text,this.x,this.y);
+    fctx.fillStyle="rgba(255,255,255,0.95)";
+    fctx.fillText(this.text,this.x,this.y);
+    fctx.restore();
   }
+}
+
+function floatText(text,x,y){ texts.push(new FloatingText(text,x,y)); }
+
+/* —— 照片融合：爆炸中心印一个“照片光斑” —— */
+const texImgs = [new Image(), new Image()];
+texImgs[0].src = ASSETS.img1;
+texImgs[1].src = ASSETS.img2;
+
+function drawPhotoStamp(x,y){
+  const img = pick(texImgs);
+  if(!img.complete) return;
+
+  const size = rand(90, 150);
+  fctx.save();
+  fctx.globalAlpha = 0.22;
+  fctx.translate(x,y);
+  fctx.rotate(rand(-0.18,0.18));
+
+  // 圆形遮罩（像把照片融进烟花核心）
+  fctx.beginPath();
+  fctx.arc(0,0,size*0.46,0,Math.PI*2);
+  fctx.clip();
+
+  // 加法混合更梦幻
+  fctx.globalCompositeOperation = "screen";
+  fctx.drawImage(img, -size/2, -size/2, size, size);
+
+  // 外圈微光
+  fctx.globalCompositeOperation = "lighter";
+  const g = fctx.createRadialGradient(0,0,2,0,0,size*0.6);
+  g.addColorStop(0,"rgba(255,255,255,0.18)");
+  g.addColorStop(1,"rgba(255,255,255,0)");
+  fctx.fillStyle = g;
+  fctx.beginPath(); fctx.arc(0,0,size*0.6,0,Math.PI*2); fctx.fill();
+
+  fctx.restore();
 }
 
 function explode(x,y,color){
-  const n = PARTICLES_PER_BURST + (Math.random()*30|0);
-  for(let i=0;i<n;i++){
-    sparks.push(new Spark(x,y,color));
+  // 先盖一层“照片印记”作为融合（概率触发）
+  if(Math.random() < 0.55) drawPhotoStamp(x,y);
+
+  const n = PARTICLES + (Math.random()*40|0);
+  for(let i=0;i<n;i++) sparks.push(new Spark(x,y,color));
+
+  if(Math.random()<0.65){
+    const c2=pick(colors);
+    for(let i=0;i<(n*0.5|0);i++) sparks.push(new Spark(x,y,c2));
   }
-  // 再叠一个随机色层，更“炸”
-  if(Math.random() < 0.65){
-    const c2 = pick(colors);
-    for(let i=0;i<(n*0.45|0);i++){
-      sparks.push(new Spark(x,y,c2));
-    }
+
+  // “走心卡片”从烟花里飘出来（概率）
+  if(Math.random() < 0.35){
+    floatText(pick(FLOAT_QUOTES), x, y);
   }
+
+  boomSound();
 }
 
 function launch(x){
-  rockets.push(new Rocket(x, H + 10));
+  rockets.push(new Rocket(x));
 }
 
 function autoLaunch(){
-  // 随机 1~2 发
-  launch(rand(W*0.15, W*0.85));
-  if(Math.random() < 0.35) setTimeout(()=>launch(rand(W*0.12, W*0.88)), 90);
+  launch(rand(W*0.16, W*0.84));
+  if(Math.random()<0.35) setTimeout(()=>launch(rand(W*0.12, W*0.88)), 90);
 }
 
-// 更酷：超级连发
-function megaBurst(times=16){
+function megaBurst(times=20){
   let i=0;
-  const id = setInterval(()=>{
+  const id=setInterval(()=>{
     launch(rand(W*0.12, W*0.88));
     i++;
     if(i>=times) clearInterval(id);
   }, 80);
 }
-document.getElementById("mega").addEventListener("click", ()=>{
-  megaBurst(isMobile ? 18 : 26);
-  floatText("明珠，新年快乐", W*0.5, H*0.42);
+
+$("#mega").addEventListener("click", ()=>{
+  megaBurst(isMobile ? 18 : 28);
+  floatText(`${HER_NAME}，新年快乐`, W*0.5, H*0.42);
+  ping(1046,0.10,0.10); setTimeout(()=>ping(1318,0.10,0.09),120);
 });
 
-// 点哪炸哪（触摸）
-let pressTimer = null;
-let pressing = false;
-
+/* 点哪儿炸哪儿 + 长按加密 */
+let pressing=false;
+let pressTimer=null;
 function handlePointer(x,y){
-  // 从底部发射，朝向目标高度附近爆炸：用多发模拟“指哪儿炸”
   const count = isMobile ? 2 : 3;
   for(let i=0;i<count;i++){
-    const r = new Rocket(clamp(x + rand(-30,30), 10, W-10), H + 12);
-    r.targetY = clamp(y + rand(-80, 40), H*0.14, H*0.55);
+    const r = new Rocket(clamp(x+rand(-32,32), 10, W-10));
+    r.targetY = clamp(y + rand(-90, 50), H*0.14, H*0.55);
     rockets.push(r);
   }
 }
 
-window.addEventListener("pointerdown", (e)=>{
-  pressing = true;
-  handlePointer(e.clientX, e.clientY);
-  // 长按密集
-  pressTimer = setInterval(()=>{
+window.addEventListener("pointerdown",(e)=>{
+  pressing=true;
+  handlePointer(e.clientX,e.clientY);
+  pressTimer=setInterval(()=>{
     if(!pressing) return;
-    handlePointer(e.clientX + rand(-40,40), e.clientY + rand(-20,20));
+    handlePointer(e.clientX+rand(-45,45), e.clientY+rand(-25,25));
   }, 160);
-}, {passive:true});
+},{passive:true});
 
-window.addEventListener("pointerup", ()=>{
-  pressing = false;
+window.addEventListener("pointerup",()=>{
+  pressing=false;
   if(pressTimer) clearInterval(pressTimer);
-  pressTimer = null;
-}, {passive:true});
+  pressTimer=null;
+},{passive:true});
 
-window.addEventListener("pointercancel", ()=>{
-  pressing = false;
+window.addEventListener("pointercancel",()=>{
+  pressing=false;
   if(pressTimer) clearInterval(pressTimer);
-  pressTimer = null;
-}, {passive:true});
+  pressTimer=null;
+},{passive:true});
 
-// 漂浮文字
-function floatText(text, x, y){
-  texts.push(new FloatingText(text, x, y));
-}
+/* 烟花主循环：拖影 + 轻微 bloom 感 */
+let lastAuto=0;
+function fwLoop(ts){
+  // 拖影（越小越“长尾”）
+  fctx.fillStyle="rgba(0,0,0,0.20)";
+  fctx.fillRect(0,0,W,H);
 
-// 主循环：用轻微拖影做“电影感”
-let lastAuto = 0;
-function loop(ts){
-  // 拖影层：越小越“长尾”
-  ctx.fillStyle = "rgba(0,0,0,0.22)";
-  ctx.fillRect(0,0,W,H);
+  // bloom：叠加一层淡淡的亮雾（让烟花更“艳”）
+  fctx.save();
+  fctx.globalCompositeOperation = "lighter";
+  fctx.fillStyle="rgba(255,255,255,0.015)";
+  fctx.fillRect(0,0,W,H);
+  fctx.restore();
 
-  // 自动发射
-  if(ts - lastAuto > AUTO_RATE){
+  if(ts-lastAuto>AUTO_RATE){
     autoLaunch();
-    lastAuto = ts;
+    lastAuto=ts;
   }
 
-  // 更新/绘制火箭
+  // rockets
   for(let i=rockets.length-1;i>=0;i--){
     const ok = rockets[i].step();
     rockets[i].draw();
     if(!ok) rockets.splice(i,1);
   }
 
-  // 更新/绘制火花
+  // sparks
+  fctx.save();
+  fctx.globalCompositeOperation = "lighter";
   for(let i=sparks.length-1;i>=0;i--){
     const ok = sparks[i].step();
     sparks[i].draw();
     if(!ok) sparks.splice(i,1);
   }
+  fctx.restore();
 
-  // 更新/绘制浮字
+  // texts
   for(let i=texts.length-1;i>=0;i--){
     const ok = texts[i].step();
     texts[i].draw();
     if(!ok) texts.splice(i,1);
   }
 
-  requestAnimationFrame(loop);
+  requestAnimationFrame(fwLoop);
 }
-requestAnimationFrame(loop);
+requestAnimationFrame(fwLoop);
 
-// 首次惊艳：开场连发
-setTimeout(()=>megaBurst(isMobile ? 14 : 20), 300);
-setTimeout(()=>floatText("明珠，新年快乐", W*0.5, H*0.42), 700);
+/* ==========================
+   8) 照片卡交互：触发“照片烟花”
+========================== */
+function photoFireworks(which){
+  const x = which===1 ? W*0.22 : W*0.26;
+  const y = which===1 ? H*0.30 : H*0.46;
+  // 连发 + 专属浮字
+  for(let i=0;i<8;i++){
+    setTimeout(()=>handlePointer(x+rand(-40,40), y+rand(-40,40)), i*90);
+  }
+  floatText(which===1 ? "把温柔藏进光里" : "把幸福端在手心", W*0.5, H*0.42);
+  ping(which===1 ? 988 : 1175, 0.10, 0.10);
+}
 
-// 小提示 6 秒后淡出
-const tip = document.getElementById("tip");
-setTimeout(()=>{ tip.style.transition="opacity .8s ease"; tip.style.opacity="0"; }, 6000);
+$("#p1").addEventListener("click", ()=>photoFireworks(1));
+$("#p2").addEventListener("click", ()=>photoFireworks(2));
+
+/* ==========================
+   9) 开场：更惊艳的入场
+========================== */
+function openShow(){
+  setPoem(pick(WISHES));
+  setTimeout(()=>megaBurst(isMobile?14:22), 260);
+  setTimeout(()=>floatText(`${HER_NAME}，新年快乐`, W*0.5, H*0.42), 720);
+  // tip 淡出
+  setTimeout(()=>{ $("#tip").style.opacity="0"; }, 6500);
+}
+openShow();
 </script>
 </body>
 </html>
